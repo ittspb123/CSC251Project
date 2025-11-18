@@ -15,7 +15,9 @@ public class Project_Precious_Bikusa {
         try (Scanner file = new Scanner(inputFile)) {
             while (true) {
                 String policyNumber  = nextNonEmptyLine(file);
-                if (policyNumber == null) break; // reached EOF
+                if (policyNumber == null) {
+                    break; // reached EOF
+                }
 
                 String providerName  = nextNonEmptyLine(file);
                 String firstName     = nextNonEmptyLine(file);
@@ -29,9 +31,8 @@ public class Project_Precious_Bikusa {
                 double heightInches = Double.parseDouble(heightStr.trim());
                 double weightPounds = Double.parseDouble(weightStr.trim());
 
-                Policy policy = new Policy(
-                        policyNumber,
-                        providerName,
+                // Create PolicyHolder object (class collaboration)
+                PolicyHolder holder = new PolicyHolder(
                         firstName,
                         lastName,
                         age,
@@ -39,16 +40,24 @@ public class Project_Precious_Bikusa {
                         heightInches,
                         weightPounds
                 );
+
+                // Create Policy that has-a PolicyHolder
+                Policy policy = new Policy(
+                        policyNumber,
+                        providerName,
+                        holder
+                );
+
                 policies.add(policy);
 
-                if ("smoker".equalsIgnoreCase(smokingStatus)) {
+                // Count smokers / non-smokers based on the PolicyHolder
+                if ("smoker".equalsIgnoreCase(holder.getPolicyholderSmokingStatus())) {
                     smokerCount++;
                 } else {
                     nonSmokerCount++;
                 }
 
-                // consume optional blank separator line(s) between records
-                // (nextNonEmptyLine will already skip blanks the next loop)
+                // any blank line separator is handled by nextNonEmptyLine in the next loop
             }
         } catch (IOException e) {
             System.out.println("Could not read PolicyInformation.txt: " + e.getMessage());
@@ -58,23 +67,15 @@ public class Project_Precious_Bikusa {
             return;
         }
 
-        // Print each policy (Project 1 format)
+        // Print each policy using implicit toString
         for (Policy policy : policies) {
             System.out.println();
-            System.out.println("Policy Number: " + policy.getPolicyNumber());
-            System.out.println("Provider Name: " + policy.getProviderName());
-            System.out.println("Policyholder's First Name: " + policy.getPolicyholderFirstName());
-            System.out.println("Policyholder's Last Name: " + policy.getPolicyholderLastName());
-            System.out.println("Policyholder's Age: " + policy.getPolicyholderAge());
-            System.out.println("Policyholder's Smoking Status (smoker/non-smoker): " + policy.getPolicyholderSmokingStatus());
-            System.out.println("Policyholder's Height: " + policy.getPolicyholderHeightInInches() + " inches");
-            System.out.println("Policyholder's Weight: " + policy.getPolicyholderWeightInPounds() + " pounds");
-            System.out.printf("Policyholder's BMI: %.2f%n", policy.getBMI());
-            System.out.printf("Policy Price: $%.2f%n", policy.getPolicyPrice());
+            System.out.print(policy);  // toString() is called implicitly
             System.out.println();
         }
 
         // Totals
+        System.out.println("There were " + Policy.getPolicyCount() + " Policy objects created.");
         System.out.println("The number of policies with a smoker is: " + smokerCount);
         System.out.println("The number of policies with a non-smoker is: " + nonSmokerCount);
     }
@@ -90,3 +91,4 @@ public class Project_Precious_Bikusa {
         return null;
     }
 }
+
